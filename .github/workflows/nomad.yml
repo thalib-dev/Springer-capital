@@ -30,4 +30,4 @@ jobs:
           sleep 5  
 
       - name: Knime 
-        run: nomad run knime.nomad
+        run: nomad run KNIME.nomad
