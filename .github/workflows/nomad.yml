@@ -1,0 +1,33 @@
+name: Knime Nomad 
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Nomad and Consul
+        run: |
+          curl -fsSL https://apt.releases.hashicorp.com/gpg | sudo gpg --dearmor -o /usr/share/keyrings/hashicorp-archive-keyring.gpg
+          echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+          sudo apt update
+          sudo apt install -y nomad consul
+
+      - name: Start Consul
+        run: |
+          nohup consul agent -dev -client=0.0.0.0 > consul.log 2>&1 &
+          sleep 5  
+
+      - name: Start Nomad
+        run: |
+          nohup nomad agent -dev > nomad.log 2>&1 &
+          sleep 5  
+
+      - name: Knime 
+        run: nomad run knime.nomad
