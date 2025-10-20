@@ -1,4 +1,4 @@
-name: Knime Nomad 
+name: Knime Nomad
 
 on:
   push:
@@ -10,7 +10,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
       - name: Install Nomad and Consul
         run: |
@@ -22,12 +23,34 @@ jobs:
       - name: Start Consul
         run: |
           nohup consul agent -dev -client=0.0.0.0 > consul.log 2>&1 &
-          sleep 5  
+          sleep 5
+          consul members
 
-      - name: Start Nomad
+      - name: Start Nomad (in background)
         run: |
           nohup nomad agent -dev > nomad.log 2>&1 &
-          sleep 5  
+          sleep 5
+          nomad server members
 
-      - name: Knime 
-        run: nomad run KNIME.nomad
+      - name: Validate KNIME job
+        run: nomad job validate KNIME.nomad
+
+      - name: Run KNIME job
+        run: |
+          nomad run KNIME.nomad
+          echo "Waiting for allocation..."
+          sleep 30
+          nomad job status knime || true
+
+      - name: Show allocation logs
+        run: |
+          alloc_id=$(nomad job status knime | awk '/allocs/ {getline; print $1}')
+          echo "Logs for allocation: $alloc_id"
+          nomad alloc logs -stderr $alloc_id || true
+
+      - name: Stop KNIME job
+        if: always()
+        run: |
+          nomad stop -purge knime || true
+          pkill nomad || true
+          pkill consul || true
