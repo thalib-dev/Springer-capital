@@ -5,7 +5,7 @@ job "knime" {
   group "knime-group" {
     network {
       port "http" {
-        static = 8080
+        static = 7080
       }
     }
 
@@ -25,8 +25,8 @@ job "knime" {
       }
 
       resources {
-        cpu    = 500
-        memory = 512
+        cpu    = 1000
+        memory = 4096
       }
 
       service {
@@ -35,7 +35,7 @@ job "knime" {
 
         check {
           type     = "http"
-          path     = "/"
+          path     = "/knime"
           interval = "20s"
           timeout  = "5s"
           initial_status = "passing"
