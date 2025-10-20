@@ -20,7 +20,7 @@ job "knime" {
       driver = "docker"
 
       config {
-        image = "knime/knime-server:latest"
+        image = "knime/knime:r-5.8.0-402"
         ports = ["http"]
       }
 
@@ -29,16 +29,21 @@ job "knime" {
         memory = 4096
       }
 
+      env {
+        JAVA_OPTS = "-Xmx4G"
+
+      }
+
       service {
         name = "knime"
         port = "http"
 
         check {
-          type     = "http"
-          path     = "/knime"
-          interval = "20s"
-          timeout  = "5s"
-          initial_status = "passing"
+          type           = "http"
+          path           = "/knime/webportal"
+          interval       = "30s"
+          timeout        = "5s"
+          initial_status = "critical"
         }
       }
     }
