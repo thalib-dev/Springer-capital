@@ -40,7 +40,7 @@ job "knime" {
 
         check {
           type           = "http"
-          path           = "/knime/webportal"
+          path           = "/health"
           interval       = "60s"
           timeout        = "10s"
           initial_status = "critical"
