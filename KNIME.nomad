@@ -11,9 +11,9 @@ job "knime" {
 
     update {
       max_parallel      = 1
-      min_healthy_time  = "30s"
-      healthy_deadline  = "10m"
-      progress_deadline = "15m"
+      min_healthy_time  = "10s"
+      healthy_deadline  = "20m"
+      progress_deadline = "25m"
     }
 
     task "knime-task" {
@@ -25,8 +25,8 @@ job "knime" {
       }
 
       resources {
-        cpu    = 1000
-        memory = 4096
+        cpu    = 2000
+        memory = 8192
       }
 
       env {
@@ -41,8 +41,8 @@ job "knime" {
         check {
           type           = "http"
           path           = "/knime/webportal"
-          interval       = "30s"
-          timeout        = "5s"
+          interval       = "60s"
+          timeout        = "10s"
           initial_status = "critical"
         }
       }
